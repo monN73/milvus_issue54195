@@ -5,7 +5,7 @@ version: "3.5"
 
 services:
   milvus-volume-init:
-    image: milvusdb/milvus:v3.0.0
+    image: ${MILVUS_IMAGE:-milvusdb/milvus:v3.0.0-fixed}
     user: "0:0"
     network_mode: none
     read_only: true
@@ -63,7 +63,7 @@ services:
 
   standalone:
     container_name: milvus-standalone
-    image: milvusdb/milvus:v3.0.0
+    image: ${MILVUS_IMAGE:-milvusdb/milvus:v3.0.0-fixed}
     command: ["milvus", "run", "standalone"]
     cpus: "4"
     mem_limit: 6g
