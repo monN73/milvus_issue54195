@@ -242,13 +242,21 @@ def main(output_file: str = "dual_bench_result.json"):
     centers = generate_centers(cfg)
     queries = generate_queries(cfg, centers)
 
-    # 1. Issue #54195 (AND-TRUE identity)
+    # 0. Literal AND-TRUE (128x literal 'and true')
+    f_literal_orig = "category == 1"
+    f_literal_equiv = f"({f_literal_orig})" + " and true" * 128
+
+    res_literal = run_benchmark_for_issue(
+        client, "Literal AND-TRUE (128x 'and true')", f_literal_orig, f_literal_equiv, queries, cfg
+    )
+
+    # 1. Issue #54195 (Empirical AND-TRUE 128x)
     f54195_orig = "category == 1"
     f54195_true_pred = "(age >= 1) and (age <= 1000)"
     f54195_equiv = f"({f54195_orig}) and " + " and ".join(f"({f54195_true_pred})" for _ in range(128))
 
     res_54195 = run_benchmark_for_issue(
-        client, "Issue #54195 (AND-TRUE 128x)", f54195_orig, f54195_equiv, queries, cfg
+        client, "Issue #54195 (Empirical AND-TRUE 128x)", f54195_orig, f54195_equiv, queries, cfg
     )
 
     # 2. Issue #54043 (OR-idempotent)
@@ -263,6 +271,7 @@ def main(output_file: str = "dual_bench_result.json"):
         "timestamp": datetime.now(timezone.utc).isoformat(),
         "server_version": server_version,
         "benchmarks": {
+            "literal_and_true": res_literal,
             "54195": res_54195,
             "54043": res_54043,
         },
